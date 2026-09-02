@@ -1,7 +1,7 @@
 from pathlib import Path
 import typer
 from src.config import get_github_token
-from src.github_client import GitHubClient
+from src.github_cliente import GitHubClient
 from src.processor import DatasetProcessor
 
 app = typer.Typer(
