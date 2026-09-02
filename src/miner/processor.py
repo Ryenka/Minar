@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
-from src.miner import has_agentic_workflow
-from src.github_cliente import GitHubClient
+from miner.mina import has_agentic_workflow
+from miner.github_cliente import GitHubClient
 
 
 class DatasetProcessor:

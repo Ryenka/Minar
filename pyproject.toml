@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "Minar"
+name = "miner"
 version = "0.1.0"
 description = "Herramienta CLI para identificar repositorios que utilizan GitHub Agentic Workflows."
 dependencies = [
@@ -20,4 +20,8 @@ dev = [
 ]
 
 [project.scripts]
-Minar = "Minar.cli:app"
+miner = "miner.cli:app"
+
+# === AGREGA ESTA SECCIÓN AL FINAL ===
+[tool.hatch.build.targets.wheel]
+packages = ["src/miner"]

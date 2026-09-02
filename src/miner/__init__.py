@@ -1,8 +1,8 @@
 """Paquete para la detección automatizada de GitHub Agentic Workflows."""
 
-from src.miner import has_agentic_workflow
-from src.github_cliente import GitHubClient
-from src.processor import DatasetProcessor
+from .mina import has_agentic_workflow
+from .github_cliente import GitHubClient
+from .processor import DatasetProcessor
 
 __version__ = "0.1.0"
 
