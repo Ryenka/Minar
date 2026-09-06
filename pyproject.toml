@@ -12,6 +12,9 @@ dependencies = [
     "pandas>=2.0.0",
     "httpx>=0.24.0",
     "python-dotenv>=1.0.0",
+    "python-frontmatter>=3.0.0",
+    "pyyaml>=6.0",
+    "pyarrow>=12.0.0",
 ]
 
 [project.optional-dependencies]
@@ -22,6 +25,5 @@ dev = [
 [project.scripts]
 miner = "miner.cli:app"
 
-# === AGREGA ESTA SECCIÓN AL FINAL ===
 [tool.hatch.build.targets.wheel]
 packages = ["src/miner"]
