@@ -78,32 +78,46 @@ def extract(
         token = get_github_token()
         df_input = pd.read_csv(input_file)
 
+        if "uses_github_agentic_workflows" in df_input.columns:
+            df_input = df_input[
+                df_input["uses_github_agentic_workflows"] == True
+            ]
+
         repositories = []
         workflow_files = []
         workflow_metadata = []
 
         client = GitHubClient(token=token)
+
         for idx, row in df_input.iterrows():
-                repo_full_name = row["name"]
-                owner, repo_name = repo_full_name.split("/")
-                repo_id = idx + 1
+            repo_full_name = row.get("name") or row.get("full_name")
 
-                repositories.append(
-                    {
-                        "repository_id": repo_id,
-                        "owner": owner,
-                        "name": repo_name,
-                        "full_name": repo_full_name,
-                    }
-                )
+            if pd.isna(repo_full_name) or "/" not in str(repo_full_name):
+                continue
 
-                try:
-                    workflows = client.get_workflow_md_files(repo_full_name)
-                    for file_info in workflows:
+            repo_full_name = str(repo_full_name).strip()
+            owner, repo_name = repo_full_name.split("/", 1)
+            repo_id = idx + 1
+
+            repositories.append(
+                {
+                    "repository_id": repo_id,
+                    "owner": owner,
+                    "name": repo_name,
+                    "full_name": repo_full_name,
+                }
+            )
+
+            try:
+                workflows = client.get_workflow_md_files(repo_full_name)
+
+                for file_info in workflows:
+                    try:
                         file_path = file_info["path"]
                         file_name = file_info["name"]
                         file_id = f"{repo_id}_{file_name}"
 
+                        # Descargar y parsear de forma aislada
                         raw_content = fetch_raw_file_content(
                             client.client, repo_full_name, file_path
                         )
@@ -119,28 +133,32 @@ def extract(
                             }
                         )
 
+                        tools_val = metadata_dict.get("tools", [])
+                        name_val = metadata_dict.get("name", "")
+                        desc_val = metadata_dict.get("description", "")
+
                         workflow_metadata.append(
                             {
                                 "metadata_id": f"meta_{file_id}",
                                 "file_id": file_id,
-                                "name": str(metadata_dict.get("name", "")),
-                                "description": str(
-                                    metadata_dict.get("description", "")
-                                ),
-                                "tools": json.dumps(
-                                    metadata_dict.get("tools", [])
-                                ),
-                                "raw_frontmatter_json": json.dumps(
-                                    metadata_dict
-                                ),
+                                "name": str(name_val) if name_val is not None else "",
+                                "description": str(desc_val) if desc_val is not None else "",
+                                "tools": json.dumps(tools_val, default=str),
+                                "raw_frontmatter_json": json.dumps(metadata_dict, default=str),
                             }
                         )
-                except Exception as ex:
-                    typer.secho(
-                        f"Advertencia en {repo_full_name}: {ex}",
-                        fg=typer.colors.YELLOW,
-                    )
+                    except Exception as file_ex:
+                        typer.secho(
+                            f"Advertencia en archivo {file_info.get('name')}: {file_ex}",
+                            fg=typer.colors.YELLOW,
+                        )
+            except Exception as ex:
+                typer.secho(
+                    f"Advertencia en repo {repo_full_name}: {ex}",
+                    fg=typer.colors.YELLOW,
+                )
 
+        # Exportar las 3 tablas relacionales
         export_to_parquet(
             repositories, workflow_files, workflow_metadata, output_dir
         )
