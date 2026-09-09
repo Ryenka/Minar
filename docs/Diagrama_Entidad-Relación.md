@@ -1,3 +1,5 @@
+```mermaid
+
 erDiagram
     REPOSITORIES ||--o{ WORKFLOW_FILES : "posee"
     WORKFLOW_FILES ||--|| WORKFLOW_METADATA : "tiene"
