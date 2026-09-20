@@ -30,5 +30,10 @@ erDiagram
     }
         
     WORKFLOW_LOCK {
-        
+        string lock_id PK
+        string file_id FK
+        string lock_file_path
+        string resolved_tools
+        string engine_version
+        string raw_lock_json
     }
